@@ -1,6 +1,7 @@
 import AyurvedhaCode from "../models/AyurvedhaCode.js";
 import SiddhaCode from "../models/SiddhaCode.js";
 import UnaniCode from "../models/UnaniCode.js";
+import NamasteCode from "../models/NamasteCode.js";
 import { fetchICDDataAdvanced } from "../services/icdService.js";
 
 /**
