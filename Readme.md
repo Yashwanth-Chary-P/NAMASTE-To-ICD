@@ -1,81 +1,122 @@
-# 🧾 NAMASTE to ICD-11 Mapping Project
-This project aims to integrate **NAMASTE (National AYUSH Morbidity Codes)** with the **ICD-11 (International Classification of Diseases)** via the **Traditional Medicine Module (TM2)**. It provides APIs and tools for seamless mapping, enabling Electronic Medical Record (EMR) and Electronic Health Record (EHR) systems in India to achieve interoperability.
-## 📌 Features
-- 🔗 Mapping of **NAMASTE codes** to **ICD-11 TM2 codes**
-- ⚡ RESTful backend using **Node.js + Express**
-- 🗄️ **MongoDB** for storing mappings and clinical data
-- 🔐 Ready for **integration with EMR/EHR systems**
-- 🌐 Sandbox APIs for testing interoperability
-## 🚀 Tech Stack
-- **Frontend**: React + Vite  
-- **Backend**: Node.js, Express.js  
-- **Database**: MongoDB + Mongoose  
-- **Other Tools**: CORS, Dotenv, GitHub Actions (CI/CD)  
-## 📂 Project Structure
-```
+# NAMASTE ↔ ICD-11 Mapping (Backend + Frontend)
 
+A full-stack project to search NAMASTE (AYUSH) codes across Ayurveda, Siddha, and Unani, and map them to WHO ICD‑11 entities.
+
+## Features
+- Search NAMASTE datasets (Ayurvedha, Siddha, Unani)
+- Combined search across systems + ICD-11 lookup
+- Direct ICD endpoints: token generation and entity search
+- React frontend with an ICD search box (demo)
+
+## Monorepo Layout
+```
 NAMASTE-To-ICD/
-│── backend/          # Node.js + Express backend
-│   ├── server.js
-│   ├── config/db.js
-│   ├── models/
-│   ├── routes/
-│   └── .env
-│
-│── frontend/         # React + Vite frontend
-│   ├── src/
-│   ├── public/
-│   └── package.json
-│
-│── README.md
+  Backend/
+    src/
+      app.js           # Express app and route mounting
+      server.js        # Bootstraps server
+      config/db.js     # Mongo connection
+      controllers/     # Siddha, Ayurvedha, Unani, Search controllers
+      routes/          # /api/* routes (icd, search, siddha, ayurvedha, unani)
+      models/          # Mongoose schemas and text indexes
+      services/        # icdAuthService (OAuth) & icdService (fetch/aggregate)
+    package.json
+    .env               # see Environment section
 
-````
-## ⚙️ Installation & Setup
-### 1. Clone the repository
+  Frontend/
+    src/
+      Components/ICD_Searchbox.jsx  # Demo ICD search UI
+    package.json
+```
+
+## Prerequisites
+- Node.js 18+
+- MongoDB (Atlas or local)
+- WHO ICD API client credentials (CLIENT_ID, CLIENT_SECRET)
+
+## Setup
+### 1) Clone
 ```bash
-git clone https://github.com/Yashwanth-Chary-P/NAMASTE-To-ICD.git
+git clone <your-repo-url>
 cd NAMASTE-To-ICD
-````
+```
 
-### 2. Backend Setup
-
+### 2) Backend
 ```bash
-cd backend
+cd Backend
+npm install
+```
+Create `.env` in `Backend/`:
+```env
+PORT=5000
+MONGO_URI=mongodb://localhost:27017/namaste   # or your Atlas URI
+CLIENT_ID=YOUR_WHO_ICD_CLIENT_ID
+CLIENT_SECRET=YOUR_WHO_ICD_CLIENT_SECRET
+```
+Run:
+```bash
+npm run dev
+```
+The server starts on http://localhost:5000
+
+### 3) Frontend
+```bash
+cd ../Frontend
 npm install
 npm run dev
 ```
+The app starts on the Vite dev server (shown in terminal).
 
-### 3. Frontend Setup
+## Backend Endpoints
+Base URL: `http://localhost:5000`
 
-```bash
-cd frontend
-npm install
-npm run dev
-```
+- ICD utility
+  - `POST /api/icd/token` → returns WHO ICD access token
+  - `GET /api/icd/search/:term` (requires `Authorization: Bearer <token>`) → detailed entities
 
+- Combined NAMASTE search
+  - `GET /api/search?q=<term>` → searches Ayurveda, Siddha, Unani + single ICD result
+  - `GET /api/search/namaste/:code` → fetch NAMASTE doc by code and ICD matches
 
+- Ayurvedha
+  - `GET /api/ayurvedha/search?q=<term>`
+  - `GET /api/ayurvedha/:code`
 
-## 🤝 Contribution
+- Siddha
+  - `GET /api/siddha/search?q=<term>`
+  - `GET /api/siddha/:code`
 
-1. Fork the repo
-2. Create a feature branch (`git checkout -b feature-name`)
-3. Commit changes (`git commit -m 'Added feature'`)
-4. Push branch (`git push origin feature-name`)
-5. Create a Pull Request
+- Unani
+  - `GET /api/unani/search?q=<term>`
+  - `GET /api/unani/:code`
 
-## 📜 License
+Notes:
+- Local searches use text indexes with regex fallback.
+- ICD integration calls WHO ICD v2 with release path `11/2025-01/mms` and falls back to `/unspecified` when needed.
 
-This project is licensed under the **MIT License**.
+## Frontend (ICD Demo)
+`Frontend/src/Components/ICD_Searchbox.jsx` demonstrates:
+- Fetch token from backend (`POST /api/icd/token`)
+- Search entities (`GET /api/icd/search/:term`) with `Authorization` header
+- Toggle to show/hide definitions
 
-## 👥 Authors
+Update `Base_Url` if your backend host/port differs.
 
-* **Your Name** – Yashwath Chary
-* Supported by **Ministry of AYUSH (India)**
+## Development Scripts
+- Backend: `npm run dev` (nodemon), `npm start` (same)
+- Frontend: `npm run dev`, `npm run build`, `npm run preview`
 
-### 📌 References
+## Troubleshooting
+- 401 on ICD search: ensure you first obtain a token and send `Authorization: Bearer <token>`
+- Mongo connection error: verify `MONGO_URI` and that MongoDB is reachable
+- No ICD code returned for an entity: service will attempt `/unspecified` fallback
 
-* [ICD-11 TM2](https://icd.who.int/dev11/l-m/en)
-* [NAMASTE Portal](https://namstp.ayush.gov.in/#/namcCode)
+## License
+MIT
+
+## Acknowledgements
+- Ministry of AYUSH (India)
+- WHO ICD-11 API
 
 
  
