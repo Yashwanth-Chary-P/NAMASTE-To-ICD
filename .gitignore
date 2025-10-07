@@ -1,4 +1,6 @@
+# -------------------------
 # Logs
+# -------------------------
 logs
 *.log
 npm-debug.log*
@@ -7,34 +9,41 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
+# -------------------------
 # Node modules
+# -------------------------
 frontend/node_modules/
 backend/node_modules/
 
-# Environment variables (root and case-correct paths)
+# -------------------------
+# Environment variables
+# (root + frontend + backend)
+# -------------------------
 .env
-Frontend/.env
-Frontend/.env.local
-Frontend/.env.*.local
-Backend/.env
-Backend/.env.local
-Backend/.env.*.local
-
-# Environment variables (root and case-correct paths)
 .env.local
-.env
 .env.*.local
 .env.*
-.env.local.*
 
+frontend/.env
+frontend/.env.local
+frontend/.env.*.local
+
+backend/.env
+backend/.env.local
+backend/.env.*.local
+
+# -------------------------
 # Build output
+# -------------------------
 frontend/dist/
 backend/dist/
 
-# Editor directories and files
+# -------------------------
+# Editor / IDE settings
+# -------------------------
 .vscode/*
 !.vscode/extensions.json
-.idea
+.idea/
 .DS_Store
 *.suo
 *.ntvs*
