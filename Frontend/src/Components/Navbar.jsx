@@ -36,15 +36,16 @@ const Navbar = () => {
 
         {/* Logo */}
         <div
-          className="flex items-center gap-3 cursor-pointer group"
+          className="flex items-center gap-2 cursor-pointer group"
           onClick={() => navigate("/")}
         >
-          {/* In your project, replace assets.logo with the path to the generated image_0.png file */}
-          <img
-            className="w-[160px] h-auto object-contain transition-transform duration-300 group-hover:scale-105"
-            src={assets.logo}
-            alt="AyurMap - Digital Heritage Registry Logo"
-          />
+          <div className="w-9 h-9 rounded-lg bg-emerald-500/10 flex items-center justify-center">
+            <span className="text-emerald-400 text-lg">🌿</span>
+          </div>
+
+          <h1 className="text-lg font-semibold text-white tracking-tight">
+            AyuMap
+          </h1>
         </div>
 
         {/* Center Nav Links (Desktop only) */}
@@ -62,17 +63,12 @@ const Navbar = () => {
 
         {/* Right Section (Login / Signup for Desktop) */}
         <div className="hidden lg:flex items-center gap-4">
+
           <button
             onClick={() => navigate("/login")}
-            className="text-sm font-medium text-white/80 hover:text-white px-4 py-2.5 transition-colors duration-300"
-          >
-            Login
-          </button>
-          <button
-            onClick={() => navigate("/signup")}
             className="text-sm font-medium tracking-wide text-white bg-gradient-to-r from-emerald-600 to-teal-500 hover:shadow-[0_0_20px_rgba(16,185,129,0.3)] hover:-translate-y-0.5 rounded-full px-6 py-2.5 transition-all duration-300"
           >
-            Sign Up
+            Login
           </button>
         </div>
 
@@ -104,23 +100,15 @@ const Navbar = () => {
 
           <div className="h-px bg-white/10 my-2" />
 
+
           <button
             onClick={() => {
               navigate("/login");
               setMenuOpen(false);
             }}
-            className="text-left text-base font-medium text-white/80 hover:text-white px-4 py-3 rounded-xl transition-colors duration-300"
-          >
-            Login
-          </button>
-          <button
-            onClick={() => {
-              navigate("/signup");
-              setMenuOpen(false);
-            }}
             className="text-center text-base font-medium text-white bg-gradient-to-r from-emerald-600 to-teal-500 rounded-xl px-4 py-3 mt-2 shadow-[0_4px_15px_rgba(16,185,129,0.2)]"
           >
-            Sign Up
+            Login
           </button>
         </div>
       </div>

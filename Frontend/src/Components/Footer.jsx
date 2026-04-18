@@ -1,66 +1,107 @@
-import React from 'react'
-import { FaFacebookF } from "react-icons/fa";
-import { FaTwitter } from "react-icons/fa";
-import { FaInstagram } from "react-icons/fa";
-import { SiPicsart } from "react-icons/si";
-import { FaYoutube } from "react-icons/fa";
-import { assets } from '../../assets/assets'
+import React from 'react';
+import {
+    FaFacebookF,
+    FaTwitter,
+    FaInstagram,
+    FaLinkedinIn,
+    FaGithub
+} from "react-icons/fa";
+import { assets } from '../../assets/assets';
+
 const Footer = () => {
-  return (
-    <div className='bg-blue-950 h-full flex flex-col text-[#c7cfdd] p-4'>
-        <div className='grid grid-cols-2 md:grid-cols-4 gap-4 text-[#c7cfdd]  mt-14'>
-            <div className="flex flex-col mx-auto ">
-                <h4 className='text-white mb-4'>Contact</h4>
-                <p><strong className='text-slate-400'>Address: </strong>562 Wellington Road. Street 32.San Francisco</p>
-                <p><strong className='text-slate-400'>Phone: </strong>+01 2222 365 /(+91) 01 2345 6789 </p>
-                <p><strong className='text-slate-400'>Hours: </strong>10:00 -18:00.Mon - Sat</p>
-                
-                <h4 className='text-white mt-4'>Follow us</h4>
-                <div className="m-4 flex gap-1">
-                    <FaFacebookF />
-                    <FaTwitter />
-                    <FaInstagram />
-                    <SiPicsart />
-                    <FaYoutube />
+    return (
+        <footer className="relative bg-[#04130d] text-white/60 pt-20 pb-8 border-t border-white/5 overflow-hidden font-sans">
+
+            {/* Ambient Glow */}
+            <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-3xl h-[1px] bg-gradient-to-r from-transparent via-emerald-500/30 to-transparent" />
+            <div className="absolute -top-24 left-1/2 -translate-x-1/2 w-[600px] h-[200px] bg-emerald-900/20 blur-[100px] rounded-full pointer-events-none" />
+
+            <div className="max-w-7xl mx-auto px-6 lg:px-8">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 lg:gap-8 mb-16 relative z-10">
+
+                    {/* 1. Brand & Info */}
+                    <div
+                        className="flex items-center gap-3 cursor-pointer group"
+                        onClick={() => navigate("/")}
+                    >
+                        {/* Icon */}
+                        <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-500 flex items-center justify-center shadow-md group-hover:scale-105 transition">
+                            <span className="text-white text-lg">🌿</span>
+                        </div>
+
+                        {/* Text */}
+                        <div className="flex flex-col leading-tight">
+                            <span className="text-white font-semibold tracking-tight text-lg">
+                                AyuMap
+                            </span>
+                            <span className="text-[10px] text-gray-400 tracking-widest">
+                                ICD PLATFORM
+                            </span>
+                        </div>
+                    </div>
+
+                    {/* 2. Quick Links */}
+                    <div className="flex flex-col">
+                        <h4 className="text-white text-lg font-semibold tracking-wide mb-6">Platform</h4>
+                        <div className="flex flex-col gap-3.5">
+                            <a href="/" className="text-sm hover:text-emerald-400 transition-colors duration-300 flex items-center gap-2">Home</a>
+                            <a href="/mapping" className="text-sm hover:text-emerald-400 transition-colors duration-300 flex items-center gap-2">Mapping Tool</a>
+                            <a href="/search" className="text-sm hover:text-emerald-400 transition-colors duration-300 flex items-center gap-2">ICD-11 Search</a>
+                            <a href="/reports" className="text-sm hover:text-emerald-400 transition-colors duration-300 flex items-center gap-2">Data & Reports</a>
+                            <a href="/about" className="text-sm hover:text-emerald-400 transition-colors duration-300 flex items-center gap-2">About the Project</a>
+                        </div>
+                    </div>
+
+                    {/* 3. Resources */}
+                    <div className="flex flex-col">
+                        <h4 className="text-white text-lg font-semibold tracking-wide mb-6">Resources</h4>
+                        <div className="flex flex-col gap-3.5">
+                            <a href="#" className="text-sm hover:text-emerald-400 transition-colors duration-300">API Documentation</a>
+                            <a href="#" className="text-sm hover:text-emerald-400 transition-colors duration-300">FHIR Integration Guide</a>
+                            <a href="#" className="text-sm hover:text-emerald-400 transition-colors duration-300">NAMASTE Framework</a>
+                            <a href="#" className="text-sm hover:text-emerald-400 transition-colors duration-300">Privacy Policy</a>
+                            <a href="#" className="text-sm hover:text-emerald-400 transition-colors duration-300">Terms of Service</a>
+                        </div>
+                    </div>
+
+                    {/* 4. Contact */}
+                    <div className="flex flex-col">
+                        <h4 className="text-white text-lg font-semibold tracking-wide mb-6">Contact Us</h4>
+                        <div className="flex flex-col gap-4 text-sm font-light text-white/50">
+                            <p className="leading-relaxed">
+                                <strong className="text-white/80 font-medium">Headquarters:</strong><br />
+                                Hyderabad, Telangana, India
+                            </p>
+                            <p>
+                                <strong className="text-white/80 font-medium">Email:</strong><br />
+                                <a href="mailto:support@ayurmap.in" className="hover:text-emerald-400 transition-colors">support@ayurmap.in</a>
+                            </p>
+
+                            <div className="mt-4">
+                                <p className="text-xs uppercase tracking-widest text-emerald-400 font-semibold mb-3">Install App</p>
+                                <div className="flex gap-3">
+                                    {assets.app && <img className="w-[100px] hover:opacity-80 transition-opacity cursor-pointer" src={assets.app} alt="App Store" />}
+                                    {assets.play && <img className="w-[100px] hover:opacity-80 transition-opacity cursor-pointer" src={assets.play} alt="Google Play" />}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
                 </div>
 
-            </div>
-            <div className="flex flex-col mx-auto">
-                <h4 className='text-white mb-4'>About</h4>
-            
-                <a to="#">About us</a>
-                <a to="#">Delivery Information</a>
-                <a to="#">Privacy Policy</a>
-                <a to="#">Terms & Conditions</a>
-                <a to="#">Contact us</a>
-                
-
-            </div>
-            <div className="flex flex-col mx-auto">
-                <h4 className='text-white mb-4'>My Account</h4>
-                <a to="#">Sign In</a>
-                <a to="#">View Cart</a>
-                <a to="#">My Wishlist</a>
-                <a to="#">Track My Order</a>
-                <a to="#">Help</a>
-            </div>
-            <div className="flex flex-col mx-auto">
-                <h4 className='text-white mb-4'>Install App</h4>
-                <p>From App Store or Google Play Store</p>
-                <div className="flex gap-2 mb-4">
-                    <img className='mt-2 w-[60px] md:w-[120px]'  src={assets.app} alt=""/>
-                    <img className='mt-2 w-[60px] md:w-[120px]' src={assets.play} alt=""/>                    
+                {/* Bottom Bar */}
+                <div className="border-t border-white/10 pt-8 flex flex-col md:flex-row items-center justify-between gap-4 relative z-10">
+                    <p className="text-xs text-white/40 font-light">
+                        © {new Date().getFullYear()} AyurMap Registry. All Rights Reserved.
+                    </p>
+                    <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/5 border border-white/10">
+                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                        <span className="text-[10px] uppercase tracking-[0.1em] text-white/60 font-medium">Systems Operational</span>
+                    </div>
                 </div>
-                <p >Secured Payment Gateways</p>
-                <img className='mt-2' src={assets.pay} alt=""/>
             </div>
-        </div>
-        <div className='text-white mx-auto mt-2'>
-            <p>©  Copyright 2008-2025 insurance.com. All Rights Reserved.</p>
-        </div>
-
-    </div>
-  )
+        </footer>
+    );
 }
 
-export default Footer
+export default Footer;

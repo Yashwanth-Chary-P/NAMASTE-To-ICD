@@ -63,13 +63,7 @@ const Auth = ({ defaultIsLogin = true }) => {
             </div>
 
             {/* Back to Home Button */}
-            <button 
-                onClick={() => navigate('/')}
-                className="absolute top-8 left-8 z-20 flex items-center gap-2 text-white/50 hover:text-white transition-colors duration-300 text-sm font-medium"
-            >
-                <HiArrowRight className="rotate-180 w-4 h-4" />
-                Back to Home
-            </button>
+            
 
             {/* Main Auth Card */}
             <motion.div 

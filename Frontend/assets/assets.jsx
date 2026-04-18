@@ -18,7 +18,7 @@ import Unani from "./AYUSHI/Unani.png"
 export const assets = {
     pay, play, app, // footer
     Logo, logo,//Navbar
-
+    Logo, //Navbar
     Leaf,Modi, // LEft hero 1
     AyushDoctors,AyushInstitutions,AyushResearchers,AyushScientists,AyushTeachers,HealthWorkers,
     ICD,
