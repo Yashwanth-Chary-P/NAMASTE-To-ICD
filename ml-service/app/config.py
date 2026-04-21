@@ -14,7 +14,8 @@ COLLECTIONS = {
     "siddha": "traditional_siddha",
     "unani": "traditional_unani",
     "tm2": "tm2",
-    "icd11": "icd_codes"
+    "icd11": "icd_codes",
+    "fhir_mappings": "fhir_mappings"
 }
 
 # Validation (fail fast if missing)
