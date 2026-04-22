@@ -15,9 +15,12 @@ import ICD from "./Home Hero/ICD-11.png"
 import Ayurvedha from "./AYUSHI/Ayurvedha.png"
 import Siddha from "./AYUSHI/Siddha.png"
 import Unani from "./AYUSHI/Unani.png"
+import profile from "./profile.png";
+
 export const assets = {
     pay, play, app, // footer
-    Logo, logo,//Navbar
+     logo,//Navbar
+     profile,
     Logo, //Navbar
     Leaf,Modi, // LEft hero 1
     AyushDoctors,AyushInstitutions,AyushResearchers,AyushScientists,AyushTeachers,HealthWorkers,

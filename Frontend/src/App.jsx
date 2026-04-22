@@ -7,33 +7,65 @@ import AboutPage from './Pages/About'
 import Dashboard from './Pages/Dashboard'
 import SearchFilter from './Pages/Search'
 import Mapping from './Pages/Mapping'
-import Auth from './Pages/Auth'
 
-// ✅ ADD THESE
+// Auth
 import Login from './Components/Login'
 import Register from './Components/Register'
+import Profile from './Pages/Profile'
+
+// 🔥 ADD THIS
+import PrivateRoute from './Routes/PrivateRoute'
+import IcdSearch from './Pages/IcdSearch'
 
 function App() {
-
   return (
     <>
-      <Navbar/>
+      <Navbar />
 
       <Routes>
-        <Route path='/' element={<Home/>}/>
-        <Route path='/search' element={<SearchFilter/>}/>
-        <Route path='/mapping' element={<Mapping/>}/>
-        <Route path='/about' element={<AboutPage/>}/>
-        <Route path='/reports' element={<Dashboard/>}/>
+        {/* 🔓 Public */}
+        <Route path='/' element={<Home />} />
+        <Route path='/about' element={<AboutPage />} />
+        <Route path='/login' element={<Login />} />
+        <Route path='/register' element={<Register />} />
 
-        {/* ✅ NEW ROUTES */}
-        <Route path='/login' element={<Login/>}/>
-        <Route path='/register' element={<Register/>}/>
+        {/* 🔒 Protected */}
+        <Route path='/search' element={
+          <PrivateRoute>
+            <SearchFilter />
+          </PrivateRoute>
+        } />
+
+        <Route path='/mapping' element={
+          <PrivateRoute>
+            <Mapping />
+          </PrivateRoute>
+        } />
+
+        <Route path='/reports' element={
+          <PrivateRoute>
+            <Dashboard />
+          </PrivateRoute>
+        } />
+
+        <Route path='/profile' element={
+          <PrivateRoute>
+            <Profile />
+          </PrivateRoute>
+        } />
+
+
+        <Route path="/icd-search" element={
+          <PrivateRoute>
+            <IcdSearch />
+          </PrivateRoute>
+          } 
+          />
       </Routes>
 
-      <Footer/>
+      <Footer />
     </>
   )
 }
 
-export default App
+export default App;
