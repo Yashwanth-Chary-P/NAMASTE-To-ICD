@@ -1,32 +1,25 @@
-# Node.js dependencies
-/node_modules/
+# Node modules
+node_modules/
 
-# Environment variables
+# Environment files
 .env
 
 # Logs
+logs
 *.log
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
 
 # OS files
 .DS_Store
 Thumbs.db
 
-# Build folders (if any)
+# Build
 dist/
 build/
 
-# VS Code settings
+# IDE
 .vscode/
+.idea/
 
-# MacOS metadata
-*.swp
-*.swo
-
-# MongoDB local database dumps (if any)
-*.dump
-
-# Optional: coverage reports (if you add tests)
-coverage/
+# Temp
+tmp/
+temp/
