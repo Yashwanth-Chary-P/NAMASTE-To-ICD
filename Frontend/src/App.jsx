@@ -16,6 +16,10 @@ import Profile from './Pages/Profile'
 // 🔥 ADD THIS
 import PrivateRoute from './Routes/PrivateRoute'
 import IcdSearch from './Pages/IcdSearch'
+import Lookup from './features/LookUp'
+import Search from './features/Search'
+import Map from './features/Map'
+import FhirStore from './features/FhirStore'
 
 function App() {
   return (
@@ -59,8 +63,34 @@ function App() {
           <PrivateRoute>
             <IcdSearch />
           </PrivateRoute>
-          } 
-          />
+        }
+        />
+
+        {/* 🔒 FHIR WORKFLOW */}
+        <Route path='/fhir/lookup' element={
+          <PrivateRoute>
+            <Lookup />
+          </PrivateRoute>
+        } />
+
+        <Route path='/fhir/search' element={
+          <PrivateRoute>
+            <Search />
+          </PrivateRoute>
+        } />
+
+        <Route path='/fhir/map' element={
+          <PrivateRoute>
+            <Map />
+          </PrivateRoute>
+        } />
+
+        <Route path='/fhir/store' element={
+          <PrivateRoute>
+            <FhirStore />
+          </PrivateRoute>
+        } />
+
       </Routes>
 
       <Footer />
