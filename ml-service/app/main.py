@@ -1,18 +1,15 @@
 from fastapi import FastAPI
-from fastapi.middleware.cors import CORSMiddleware
-from app.routes import health, lookup, search, map, fhir
+from app.database import connect_db
+from app.routes.health import router as health_router
+from app.routes.map import router as map_router
 
-app = FastAPI(title="ML Mapping Service")
+app = FastAPI(title="NAMASTE ML Service")
 
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["http://localhost:5173"], # Allow your React dev server
-    allow_credentials=True,
-    allow_methods=["*"], # Allow GET, POST, etc.
-    allow_headers=["*"], # Allow all headers
-)
-app.include_router(health.router)
-app.include_router(lookup.router)
-app.include_router(search.router)
-app.include_router(map.router)
-app.include_router(fhir.router)
+
+@app.on_event("startup")
+async def startup_event():
+    connect_db()
+
+
+app.include_router(health_router)
+app.include_router(map_router)

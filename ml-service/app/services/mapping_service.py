@@ -1,50 +1,132 @@
-from app.database import get_collection
-from app.config import COLLECTIONS
-from app.services.ranking_service import rerank
-from app.utils.schema_utils import get_code_field
+import re
 
-DEFAULT_TOP_K = 5
+from app.config import COLLECTIONS, CANDIDATE_LIMIT, DEFAULT_TOP_K
+from app.database import get_collection
+from app.services.cache_service import make_cache_key, get_cached_mapping, set_cached_mapping
+from app.services.ranking_service import rerank
+from app.utils.schema_utils import get_code_field, first_nonempty
+
+
+def _repeat_text(text, times):
+    text = str(text or "").strip()
+    if not text:
+        return ""
+    return ((text + " ") * times).strip()
 
 
 def build_query(doc):
-    return " ".join([
-        str(doc.get("title", "")),
-        str(doc.get("NAMC_term", "")),
-        str(doc.get("NUMC_TERM", "")),
-        str(doc.get("Name English", "")),
-        str(doc.get("Short_definition", "")),
-        str(doc.get("Long_definition", "")),
-        str(doc.get("query", "")),
-        str(doc.get("ml_text", ""))
-    ])
+    title = first_nonempty(
+        doc,
+        [
+            "title",
+            "Name English",
+            "NAMC_term_diacritical",
+            "NAMC_term",
+            "NUMC_TERM",
+            "display_name",
+            "term",
+        ],
+    )
+
+    fsn = first_nonempty(
+        doc,
+        [
+            "fsn",
+            "Fully Specified Name",
+            "Short_definition",
+            "short_definition",
+        ],
+    )
+
+    index_terms = first_nonempty(
+        doc,
+        [
+            "Index Terms",
+            "index_terms",
+            "index_terms_original",
+            "query",
+        ],
+    )
+
+    inclusions = first_nonempty(doc, ["Inclusions", "inclusions"])
+    definition = first_nonempty(doc, ["Description", "description", "Long_definition", "long_definition"])
+
+    parts = []
+
+    if title:
+        parts.append(_repeat_text(title, 4))
+    if fsn and fsn != title:
+        parts.append(_repeat_text(fsn, 2))
+    if index_terms:
+        parts.append(_repeat_text(index_terms, 3))
+    if inclusions:
+        parts.append(_repeat_text(inclusions, 2))
+    if definition:
+        parts.append(_repeat_text(definition, 1))
+
+    if not parts:
+        fallback = first_nonempty(doc, ["ml_text", "search_text", "query", "title"])
+        parts.append(fallback)
+
+    return " ".join(parts).strip()[:12000]
+
+
+def _fetch_source_doc(source_system, code):
+    collection_name = COLLECTIONS.get(source_system)
+    if not collection_name:
+        raise ValueError("Invalid source_system")
+
+    col = get_collection(collection_name)
+    code_field = get_code_field(source_system)
+
+    return col.find_one(
+        {code_field: {"$regex": re.escape(code), "$options": "i"}},
+        {"_id": 0},
+    )
+
+
+def _fetch_candidates(target_system):
+    collection_name = COLLECTIONS.get(target_system)
+    if not collection_name:
+        return []
+
+    col = get_collection(collection_name)
+    return list(col.find({}, {"_id": 0}).limit(CANDIDATE_LIMIT))
 
 
 def map_to_targets(source_system, code, target="both", top_k=DEFAULT_TOP_K):
+    source_system = (source_system or "").lower()
+    target = (target or "both").lower()
+    top_k = int(top_k or DEFAULT_TOP_K)
 
-    col = get_collection(COLLECTIONS[source_system])
-    code_field = get_code_field(source_system)
+    cache_key = make_cache_key(source_system, code, target, top_k)
+    cached = get_cached_mapping(cache_key)
+    if cached:
+        cached["cache_hit"] = True
+        return cached
 
-    doc = col.find_one(
-        {code_field: {"$regex": f"^{code}$", "$options": "i"}},
-        {"_id": 0}
-    )
-
-    if not doc:
+    source_doc = _fetch_source_doc(source_system, code)
+    if not source_doc:
         return None
 
-    query = build_query(doc)
+    query = build_query(source_doc)
 
-    results = {}
+    response = {
+        "source_system": source_system,
+        "target": target,
+        "code": code,
+        "query": query,
+        "source": source_doc,
+        "cache_hit": False,
+    }
 
     if target in ["tm2", "both"]:
-        tm2_docs = list(get_collection("tm2").find({}, {"_id": 0}).limit(1000))
-        results["tm2"] = rerank(query, tm2_docs, top_k)
+        tm2_candidates = _fetch_candidates("tm2")
+        response["tm2"] = rerank(query, tm2_candidates, top_k=top_k)
 
     if target in ["icd11", "both"]:
-        icd_docs = list(get_collection("icd_codes").find({}, {"_id": 0}).limit(1000))
-        results["icd11"] = rerank(query, icd_docs, top_k)
+        icd_candidates = _fetch_candidates("icd11")
+        response["icd11"] = rerank(query, icd_candidates, top_k=top_k)
 
-    return {
-        "source": doc,
-        **results
-    }
+    set_cached_mapping(cache_key, response)
+    return response
