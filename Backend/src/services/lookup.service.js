@@ -12,20 +12,48 @@ async function lookupByCode(system, code) {
   }
 
   const col = getCollection(collectionName);
-  const codeField = getCodeField(system);
+  // console.log("👉 SYSTEM:", system);
+  // console.log("👉 COLLECTION:", collectionName);
+  // console.log("👉 CODE:", code);
 
-  const doc = await col.findOne(
-    {
-      [codeField]: {
-        $regex: `^${escapeRegex(code)}$`,
-        $options: "i"
+  const sample = await col.findOne();
+  // console.log("👉 SAMPLE DOCUMENT:", sample);
+  // const codeField = getCodeField(system);
+
+  // const doc = await col.findOne(
+  //   {
+  //     [codeField]: {
+  //       $regex: `^${escapeRegex(code)}$`,
+  //       $options: "i"
+  //     }
+  //   },
+  //   { projection: { _id: 0 } }
+  // );
+
+const codeField = getCodeField(system);
+
+const doc = await col.findOne(
+  {
+    $or: [
+      {
+        [codeField]: {
+          $regex: `^${escapeRegex(code)}$`,
+          $options: "i"
+        }
+      },
+      {
+        Code: {
+          $regex: `^${escapeRegex(code)}$`,
+          $options: "i"
+        }
       }
-    },
-    { projection: { _id: 0 } }
-  );
+    ]
+  },
+  { projection: { _id: 0 } }
+);
 
   if (!doc) return null;
-
+    console.log("👉 MATCH RESULT:", doc); // 🔥
   return {
     ...doc,
     system

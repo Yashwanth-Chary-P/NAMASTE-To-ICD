@@ -21,13 +21,18 @@ const Navbar = () => {
   }, []);
 
   const navLinks = [
-    { name: "Home", path: "/" },
-    { name: "Mapping Tool", path: "/mapping" },
-    { name: "Search", path: "/search" },
-    { name: "ICD-Search", path: "/icd-search" },
-    { name: "Reports", path: "/reports" },
-    { name: "About", path: "/about" },
-  ];
+  { name: "Home", path: "/" },
+
+  // 🔒 FHIR WORKFLOW
+  { name: "Lookup", path: "/fhir/lookup" },
+  { name: "Search", path: "/fhir/search" },
+  { name: "Map", path: "/fhir/map" },
+  { name: "Store", path: "/fhir/store" },
+
+  // OTHER
+  { name: "Reports", path: "/reports" },
+  { name: "About", path: "/about" },
+];
 
   return (
     <nav

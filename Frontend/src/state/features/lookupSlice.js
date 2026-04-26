@@ -1,66 +1,103 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import { api } from "../../config/api";
 
+const ALLOWED_SYSTEMS = ["ayurveda", "siddha", "unani", "tm2", "icd11"];
+
 /**
- * ASYNC THUNK
- * Fetches data from the backend lookup endpoint.
+ * 🔍 LOOKUP BY CODE
+ * GET /lookup/:system/:code
  */
 export const getLookupData = createAsyncThunk(
   "lookup/getLookupData",
   async ({ system, code }, { rejectWithValue }) => {
     try {
-      // Ensure strings are trimmed to avoid URL encoding issues with spaces
-      const cleanSystem = system.trim().toLowerCase();
-      const cleanCode = code.trim();
+      const cleanSystem = system?.trim().toLowerCase();
+      const cleanCode = code?.trim();
 
-      // Log the attempt to check the URL structure in your console
-      console.log(`Fetching: /lookup/${cleanSystem}/${cleanCode}`);
+      // 🔥 validation
+      if (!cleanSystem || !cleanCode) {
+        return rejectWithValue("System and code are required");
+      }
 
-      const response = await api.get(`/lookup/${cleanSystem}/${cleanCode}`);
-      return response.data;
+      if (!ALLOWED_SYSTEMS.includes(cleanSystem)) {
+        return rejectWithValue("Invalid system selected");
+      }
+
+      const res = await api.get(`/lookup/${cleanSystem}/${cleanCode}`);
+
+      return {
+        system: cleanSystem,
+        code: cleanCode,
+        data: res.data
+      };
+
     } catch (error) {
-      console.error("Lookup API Error:", error.response || error);
-      
-      // Return the specific error from backend or a fallback message
-      return rejectWithValue(
-        error.response?.data || { message: "Internal Server Connection Error" }
-      );
+      const message =
+        error?.response?.data?.error ||   // backend error
+        error?.response?.data?.message || // fallback
+        "Lookup failed";
+
+      return rejectWithValue(message);
     }
   }
 );
 
+/**
+ * 🧠 SLICE
+ */
 const lookupSlice = createSlice({
   name: "lookup",
   initialState: {
-    data: null,
+    current: null,     // 🔥 latest result
+    history: {},       // 🔥 cache by key
     loading: false,
     error: null,
   },
   reducers: {
     clearLookup: (state) => {
-      state.data = null;
+      state.current = null;
       state.error = null;
       state.loading = false;
     },
+
+    clearLookupHistory: (state) => {
+      state.history = {};
+    }
   },
   extraReducers: (builder) => {
     builder
+
+      // ======================
+      // PENDING
+      // ======================
       .addCase(getLookupData.pending, (state) => {
         state.loading = true;
         state.error = null;
-        // Optional: clear old data when a new search starts
-        state.data = null; 
       })
+
+      // ======================
+      // SUCCESS
+      // ======================
       .addCase(getLookupData.fulfilled, (state, action) => {
         state.loading = false;
-        state.data = action.payload;
+
+        const key = `${action.payload.system}:${action.payload.code}`;
+
+        state.current = action.payload.data;
+
+        // 🔥 cache result
+        state.history[key] = action.payload.data;
       })
+
+      // ======================
+      // ERROR
+      // ======================
       .addCase(getLookupData.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.payload;
+        state.error = action.payload || "Something went wrong";
       });
   },
 });
 
-export const { clearLookup } = lookupSlice.actions;
+export const { clearLookup, clearLookupHistory } = lookupSlice.actions;
 export default lookupSlice.reducer;
