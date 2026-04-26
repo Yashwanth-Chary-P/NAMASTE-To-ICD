@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { useSearchParams } from "react-router-dom";
 import { useAppDispatch, useAppSelector } from "../../state/store";
 import { storeMapping, clearFhir, fetchFhirHistory, fetchFhirByKey } from "../../state/features/fhirSlice";
 import {
@@ -18,6 +19,7 @@ const TAGS = ["Equivalent", "Related", "Narrower", "Broader"];
 const FhirStore = () => {
   const dispatch = useAppDispatch();
   const { record, loading, message, error, history } = useAppSelector((state) => state.fhir);
+  const [searchParams] = useSearchParams();
   
   const [activeTab, setActiveTab] = useState("create"); // 'create' | 'history'
 
@@ -38,6 +40,33 @@ const FhirStore = () => {
   useEffect(() => {
     if (activeTab === "history") dispatch(fetchFhirHistory({ limit: 10, offset: 0 }));
   }, [activeTab, dispatch]);
+
+  useEffect(() => {
+    const urlSourceSystem = (searchParams.get("source_system") || "").trim().toLowerCase();
+    const urlTargetSystem = (searchParams.get("target_system") || "").trim().toLowerCase();
+    const urlSourceCode = (searchParams.get("source_code") || "").trim();
+    const urlSourceTitle = (searchParams.get("source_title") || "").trim();
+    const urlTargetCode = (searchParams.get("target_code") || "").trim();
+    const urlTargetTitle = (searchParams.get("target_title") || "").trim();
+    const urlTag = (searchParams.get("tag") || "").trim();
+    const urlScore = searchParams.get("score");
+    const urlConfidence = (searchParams.get("confidence") || "").trim();
+    const urlMatchReason = (searchParams.get("match_reason") || "").trim();
+
+    if (urlSourceSystem) setSourceSystem(urlSourceSystem);
+    if (urlTargetSystem) setTargetSystem(urlTargetSystem);
+    if (urlSourceCode) setSourceCode(urlSourceCode);
+    if (urlSourceTitle) setSourceTitle(urlSourceTitle);
+    if (urlTargetCode) setTargetCode(urlTargetCode);
+    if (urlTargetTitle) setTargetTitle(urlTargetTitle);
+    if (urlTag) setTag(urlTag);
+    if (urlScore !== null && urlScore !== "") {
+      const parsedScore = parseFloat(urlScore);
+      if (!Number.isNaN(parsedScore)) setScore(parsedScore);
+    }
+    if (urlConfidence) setConfidence(urlConfidence);
+    if (urlMatchReason) setMatchReason(urlMatchReason);
+  }, [searchParams]);
 
   const handleCommit = () => {
     if (!isValid) return;
@@ -222,7 +251,7 @@ const FhirStore = () => {
                     className="mt-8 px-6 py-2 bg-white/5 border border-white/10 text-xs hover:bg-white/10 transition-all"
                   >
                     Create Another Mapping
-                  </button>
+                 </button>
               </div>
 
               <div className="grid md:grid-cols-2 gap-4">

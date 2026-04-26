@@ -151,8 +151,6 @@ const Home = () => {
                 <div className="absolute top-[-10%] left-[-10%] w-[80vw] h-[80vw] max-w-[800px] max-h-[800px] bg-emerald-500/5 rounded-full blur-[150px]" />
                 <div className="absolute bottom-[-10%] right-[-10%] w-[60vw] h-[60vw] max-w-[600px] max-h-[600px] bg-teal-400/5 rounded-full blur-[120px]" />
                 <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[100vw] h-[50vh] bg-emerald-900/10 rounded-[100%] blur-[200px]" />
-                {/* Subtle grid overlay */}
-                {/* <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-[0.03] mix-blend-overlay"></div> */}
             </div>
 
             {/* ════════════════════════════════════════════
@@ -192,9 +190,8 @@ const Home = () => {
                                     <HiArrowRight className="w-5 h-5 transition-transform duration-300 group-hover:translate-x-1" />
                                 </span>
                             </a>
-                            {/* Changed this button to point to your separate search page route instead of an anchor link */}
                             <a
-                                href="/search" 
+                                href="/fhir/search"
                                 className="inline-flex items-center justify-center gap-3 px-8 py-4.5 rounded-full text-base font-medium tracking-wide text-white/80 bg-white/5 border border-white/10 hover:bg-white/10 hover:border-white/20 hover:text-white transition-all duration-300 w-full sm:w-auto"
                             >
                                 Launch Application
@@ -312,7 +309,6 @@ const Home = () => {
                     </RevealSection>
 
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 relative">
-                        {/* Connecting Line */}
                         <div className="hidden lg:block absolute top-12 left-[10%] right-[10%] h-[2px] bg-gradient-to-r from-transparent via-emerald-500/20 to-transparent" />
                         
                         {STEPS.map((step, i) => (
@@ -398,10 +394,13 @@ const Home = () => {
                                                         {item.text || `Detailed documentation and cross-referencing for the ${systemNames[id]} traditional medicine system, seamlessly integrated with modern clinical coding structures to ensure standardized data capture and analysis.`}
                                                     </p>
                                                     
-                                                    <button className="mt-8 text-emerald-400 hover:text-emerald-300 font-medium flex items-center gap-2 group transition-colors">
+                                                    <a
+                                                        href={`/fhir/search?system=${encodeURIComponent(systemNames[id].toLowerCase())}`}
+                                                        className="mt-8 text-emerald-400 hover:text-emerald-300 font-medium flex items-center gap-2 group transition-colors inline-flex"
+                                                    >
                                                         Explore {systemNames[id]} Codes 
                                                         <HiArrowRight className="group-hover:translate-x-1 transition-transform" />
-                                                    </button>
+                                                    </a>
                                                 </div>
 
                                             </div>
@@ -430,7 +429,7 @@ const Home = () => {
                             Access thousands of classical formulations perfectly mapped to modern ICD-11 standards. Search by symptom, disease, or traditional terminology.
                         </p>
                         <a
-                            href="/search" // Link to your separate search page
+                            href="/fhir/search"
                             className="inline-flex items-center justify-center gap-3 px-10 py-5 rounded-full text-lg font-semibold tracking-wide text-[#04130d] bg-white hover:bg-emerald-50 hover:scale-105 hover:shadow-[0_0_50px_rgba(255,255,255,0.3)] transition-all duration-300"
                         >
                             Open Search Application

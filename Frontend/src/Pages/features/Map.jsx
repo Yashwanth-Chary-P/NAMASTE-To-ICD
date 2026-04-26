@@ -1,20 +1,25 @@
-import React, { useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { useAppDispatch, useAppSelector } from "../../state/store";
 import { mapData, clearMap } from "../../state/features/mapSlice";
 import { 
     HiOutlineLink, HiOutlineSwitchHorizontal, HiOutlineX,
     HiOutlineDocumentSearch, HiOutlineDatabase, HiOutlineClipboardCopy,
     HiOutlineBadgeCheck, HiOutlineInformationCircle, HiOutlineArrowRight,
-    HiOutlineTerminal, HiOutlineExclamationCircle
+    HiOutlineTerminal, HiOutlineExclamationCircle, HiOutlineExternalLink
 } from "react-icons/hi";
 
 const Map = () => {
     const dispatch = useAppDispatch();
     const { source, tm2, icd11, raw, loading, error } = useAppSelector((state) => state.map);
 
+    const [searchParams] = useSearchParams();
+    const paramSystem = (searchParams.get("system") || "").trim().toLowerCase();
+    const paramCode = (searchParams.get("code") || "").trim();
+
     // Form States
-    const [sourceSystem, setSourceSystem] = useState("ayurveda");
-    const [code, setCode] = useState("");
+    const [sourceSystem, setSourceSystem] = useState(paramSystem || "ayurveda");
+    const [code, setCode] = useState(paramCode || "");
     const [target, setTarget] = useState("both");
     const [topK, setTopK] = useState(5);
 
@@ -22,6 +27,33 @@ const Map = () => {
     const [selectedItem, setSelectedItem] = useState(null);
     const [selectedSys, setSelectedSys] = useState("");
     const [showRaw, setShowRaw] = useState(false);
+
+    const lastAutoRunKey = useRef("");
+
+    useEffect(() => {
+        if (paramSystem) {
+            setSourceSystem(paramSystem);
+        }
+        if (paramCode) {
+            setCode(paramCode);
+        }
+    }, [paramSystem, paramCode]);
+
+    useEffect(() => {
+        if (!paramSystem || !paramCode) return;
+
+        const key = `${paramSystem}:${paramCode}`;
+        if (lastAutoRunKey.current === key) return;
+
+        lastAutoRunKey.current = key;
+
+        dispatch(mapData({
+            source_system: paramSystem,
+            code: paramCode,
+            target: "both",
+            top_k: 5
+        }));
+    }, [paramSystem, paramCode, dispatch]);
 
     const handleRunMap = () => {
         if (!code) return;
@@ -40,7 +72,9 @@ const Map = () => {
             {selectedItem && (
                 <DetailModal 
                     item={selectedItem} 
-                    system={selectedSys} 
+                    system={selectedSys}
+                    sourceData={source}
+                    sourceSystem={sourceSystem}
                     onClose={() => setSelectedItem(null)} 
                 />
             )}
@@ -285,10 +319,20 @@ const LoadingSkeleton = () => (
 );
 
 // DetailModal remains largely the same but used polymorphic title checks
-const DetailModal = ({ item, system, onClose }) => {
+const DetailModal = ({ item, system, sourceData, sourceSystem, onClose }) => {
+    const navigate = useNavigate();
+
     const getVal = (keys) => {
         for (let key of keys) {
             if (item[key] !== undefined && item[key] !== null && item[key] !== "-") return item[key];
+        }
+        return "N/A";
+    };
+
+    const getSourceVal = (keys) => {
+        if (!sourceData) return "N/A";
+        for (let key of keys) {
+            if (sourceData[key] !== undefined && sourceData[key] !== null && sourceData[key] !== "-") return sourceData[key];
         }
         return "N/A";
     };
@@ -300,6 +344,28 @@ const DetailModal = ({ item, system, onClose }) => {
         { label: "Normalized Term", val: getVal(["normalized_term", "normalized_title"]) },
         { label: "Confidence Score", val: item.score ? `${(item.score * 100).toFixed(4)}%` : "N/A" },
     ];
+
+    const handleConfirmAndGoToFhir = () => {
+        const sourceCode = getSourceVal(["code", "NAMC_CODE", "NUMC_CODE"]);
+        const sourceTitle = getSourceVal(["title", "term", "NAMC_term", "NUMC_TERM", "Name English"]);
+        const targetCode = getVal(["code", "NAMC_CODE", "NUMC_CODE"]);
+        const targetTitle = getVal(["title", "term", "NAMC_term", "NUMC_TERM", "Name English"]);
+
+        const params = new URLSearchParams({
+            source_system: sourceSystem || "",
+            target_system: system || "",
+            source_code: sourceCode || "",
+            source_title: sourceTitle || "",
+            target_code: targetCode || "",
+            target_title: targetTitle || "",
+            tag: "Equivalent",
+            score: String(item.score ?? 0.95),
+            confidence: (item.score ?? 0.95) >= 0.9 ? "high" : (item.score ?? 0.95) >= 0.75 ? "medium" : "low",
+            match_reason: `Mapped from ${sourceSystem || "source"} to ${system || "target"}`
+        });
+
+        navigate(`/fhir/store?${params.toString()}`);
+    };
 
     return (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/90 backdrop-blur-md animate-in fade-in duration-300">
@@ -355,11 +421,19 @@ const DetailModal = ({ item, system, onClose }) => {
                                     <span className="text-xs text-zinc-300 font-mono break-all">{spec.val}</span>
                                 </div>
                             ))}
+
                             <button 
                                 onClick={() => {navigator.clipboard.writeText(JSON.stringify(item, null, 2)); alert("Data Logged to Clipboard");}}
                                 className="w-full py-4 mt-6 bg-emerald-600/10 border border-emerald-500/20 text-emerald-500 text-[10px] font-black uppercase tracking-widest rounded-xl hover:bg-emerald-500 hover:text-black transition-all flex items-center justify-center gap-2"
                             >
                                 <HiOutlineClipboardCopy size={14} /> Extract Node
+                            </button>
+
+                            <button
+                                onClick={handleConfirmAndGoToFhir}
+                                className="w-full py-4 bg-teal-500/10 border border-teal-500/20 text-teal-400 text-[10px] font-black uppercase tracking-widest rounded-xl hover:bg-teal-500 hover:text-black transition-all flex items-center justify-center gap-2"
+                            >
+                                <HiOutlineExternalLink size={14} /> Confirm & Go to FHIR
                             </button>
                         </div>
                     </div>

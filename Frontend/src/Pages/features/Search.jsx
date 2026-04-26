@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { useAppDispatch, useAppSelector } from "../../state/store";
 import { searchData, clearSearch } from "../../state/features/searchSlice";
 import { 
@@ -215,53 +216,95 @@ const ResultCard = ({ item, onClick }) => (
 );
 
 /* --- DETAIL MODAL --- */
-const DetailModal = ({ item, system, onClose }) => (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/95 backdrop-blur-xl animate-in fade-in duration-500">
-        <div className="absolute inset-0" onClick={onClose} />
-        <div className="relative w-full max-w-4xl bg-[#0a0a0a] border border-white/10 rounded-[3rem] overflow-hidden shadow-[0_0_100px_rgba(16,185,129,0.1)] flex flex-col max-h-[90vh]">
-            <div className="flex items-center justify-between p-8 border-b border-white/5 bg-white/[0.01]">
-                <span className="text-emerald-500 font-mono text-[10px] font-black uppercase tracking-[0.3em]">{system} Entry Detail</span>
-                <button onClick={onClose} className="p-3 text-zinc-500 hover:text-white transition-colors bg-white/5 rounded-full hover:scale-110 active:scale-95"><HiOutlineX size={20}/></button>
-            </div>
+const DetailModal = ({ item, system, onClose }) => {
+    const navigate = useNavigate();
 
-            <div className="p-12 overflow-y-auto grid md:grid-cols-3 gap-12">
-                <div className="md:col-span-2 space-y-12">
-                    <div>
-                        <h2 className="text-5xl font-light text-white mb-4 leading-[0.9] tracking-tighter">
-                            {getField(item, ["NAMC_term_diacritical", "NAMC_term", "title", "term", "Name English"])}
-                        </h2>
-                        <p className="text-emerald-500 font-serif text-3xl italic opacity-70">
-                            {item.NAMC_term_DEVANAGARI || item.Arabic_term || item.Tamil_term}
-                        </p>
-                    </div>
+    const modalCode = getField(item, ["code", "NAMC_CODE", "NUMC_CODE"]);
+    const modalSystem =
+        getField(item, ["system", "source", "registry", "tradition"]) ||
+        (system && system !== "Global Registry" ? system : "");
 
-                    <div className="p-10 bg-white/[0.02] border border-white/5 rounded-[2.5rem] relative">
-                        <span className="absolute -top-3 left-8 px-4 bg-[#0a0a0a] text-[9px] uppercase font-black text-zinc-600 tracking-widest">Registry Logic</span>
-                        <p className="text-zinc-400 leading-relaxed text-lg italic font-light">
-                            {item.Long_definition || item.description || "The conceptual definition for this record is currently undergoing semantic verification."}
-                        </p>
-                    </div>
+    const handleLookup = () => {
+        if (!modalSystem || !modalCode) return;
+        navigate(`/fhir/lookup?system=${encodeURIComponent(modalSystem)}&code=${encodeURIComponent(modalCode)}`);
+        onClose();
+    };
+
+    const handleMap = () => {
+        if (!modalSystem || !modalCode) return;
+        navigate(`/fhir/map?system=${encodeURIComponent(modalSystem)}&code=${encodeURIComponent(modalCode)}`);
+        onClose();
+    };
+
+    return (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/95 backdrop-blur-xl animate-in fade-in duration-500">
+            <div className="absolute inset-0" onClick={onClose} />
+            <div className="relative w-full max-w-4xl bg-[#0a0a0a] border border-white/10 rounded-[3rem] overflow-hidden shadow-[0_0_100px_rgba(16,185,129,0.1)] flex flex-col max-h-[90vh]">
+                <div className="flex items-center justify-between p-8 border-b border-white/5 bg-white/[0.01]">
+                    <span className="text-emerald-500 font-mono text-[10px] font-black uppercase tracking-[0.3em]">{system} Entry Detail</span>
+                    <button onClick={onClose} className="p-3 text-zinc-500 hover:text-white transition-colors bg-white/5 rounded-full hover:scale-110 active:scale-95"><HiOutlineX size={20}/></button>
                 </div>
 
-                <div className="space-y-8 self-start">
-                    <div className="bg-emerald-500/5 p-8 border border-emerald-500/10 space-y-6 rounded-[2.5rem]">
-                        <h4 className="text-[10px] uppercase text-emerald-500 font-black tracking-widest border-b border-emerald-500/20 pb-4">Metadata</h4>
-                        <MetaRow label="Standard Code" val={getField(item, ["code", "NAMC_CODE", "NUMC_CODE"])} />
-                        <MetaRow label="Native Script" val={item.Arabic_term || item.Tamil_term || "N/A"} />
-                        <MetaRow label="Chapter" val={item.chapter || item.Reference || "N/A"} />
-                        
-                        <button 
-                            onClick={() => {navigator.clipboard.writeText(JSON.stringify(item, null, 2)); alert("Concept Node Captured");}}
-                            className="w-full py-4 mt-6 bg-emerald-600 text-black text-[10px] font-black uppercase tracking-widest rounded-2xl hover:bg-emerald-400 transition-all shadow-lg"
-                        >
-                            Copy Full Node
-                        </button>
+                <div className="p-12 overflow-y-auto grid md:grid-cols-3 gap-12">
+                    <div className="md:col-span-2 space-y-12">
+                        <div>
+                            <h2 className="text-5xl font-light text-white mb-4 leading-[0.9] tracking-tighter">
+                                {getField(item, ["NAMC_term_diacritical", "NAMC_term", "title", "term", "Name English"])}
+                            </h2>
+                            <p className="text-emerald-500 font-serif text-3xl italic opacity-70">
+                                {item.NAMC_term_DEVANAGARI || item.Arabic_term || item.Tamil_term}
+                            </p>
+                        </div>
+
+                        <div className="p-10 bg-white/[0.02] border border-white/5 rounded-[2.5rem] relative">
+                            <span className="absolute -top-3 left-8 px-4 bg-[#0a0a0a] text-[9px] uppercase font-black text-zinc-600 tracking-widest">Registry Logic</span>
+                            <p className="text-zinc-400 leading-relaxed text-lg italic font-light">
+                                {item.Long_definition || item.description || "The conceptual definition for this record is currently undergoing semantic verification."}
+                            </p>
+                        </div>
+                    </div>
+
+                    <div className="space-y-8 self-start">
+                        <div className="bg-emerald-500/5 p-8 border border-emerald-500/10 space-y-6 rounded-[2.5rem]">
+                            <h4 className="text-[10px] uppercase text-emerald-500 font-black tracking-widest border-b border-emerald-500/20 pb-4">Metadata</h4>
+                            <MetaRow label="Standard Code" val={getField(item, ["code", "NAMC_CODE", "NUMC_CODE"])} />
+                            <MetaRow label="Native Script" val={item.Arabic_term || item.Tamil_term || "N/A"} />
+                            <MetaRow label="Chapter" val={item.chapter || item.Reference || "N/A"} />
+                            
+                            <div className="space-y-3 mt-6">
+                                <button 
+                                    onClick={() => {
+                                        navigator.clipboard.writeText(JSON.stringify(item, null, 2));
+                                        alert("Concept Node Captured");
+                                    }}
+                                    className="w-full py-4 bg-emerald-600 text-black text-[10px] font-black uppercase tracking-widest rounded-2xl hover:bg-emerald-400 transition-all shadow-lg"
+                                >
+                                    Copy Full Node
+                                </button>
+
+                                <button
+                                    onClick={handleLookup}
+                                    disabled={!modalSystem || !modalCode}
+                                    className="w-full py-4 border border-white/10 text-white text-[10px] font-black uppercase tracking-widest rounded-2xl hover:bg-white/5 transition-all disabled:opacity-40 disabled:cursor-not-allowed"
+                                >
+                                    View Lookup Details
+                                </button>
+
+                                <button
+                                    onClick={handleMap}
+                                    disabled={!modalSystem || !modalCode}
+                                    className="w-full py-4 border border-teal-500/30 text-teal-400 text-[10px] font-black uppercase tracking-widest rounded-2xl hover:bg-teal-500/10 transition-all disabled:opacity-40 disabled:cursor-not-allowed"
+                                >
+                                    Map This Concept
+                                </button>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
-);
+    );
+};
 
 const MetaRow = ({ label, val }) => (
     <div className="space-y-1">

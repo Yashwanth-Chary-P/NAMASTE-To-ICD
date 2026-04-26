@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useNavigate, useLocation } from "react-router-dom";
 import { useAppDispatch, useAppSelector } from "../../state/store";
 import { getLookupData, clearLookup } from "../../state/features/lookupSlice";
 import { 
@@ -27,6 +28,8 @@ const InfoField = ({ label, value, fullWidth = false }) => {
 };
 
 const Lookup = () => {
+    const navigate = useNavigate();
+    const location = useLocation();
     const dispatch = useAppDispatch();
     const { current: data, loading, error } = useAppSelector((state) => state.lookup);
     const [system, setSystem] = useState("");
@@ -34,6 +37,19 @@ const Lookup = () => {
     const [viewRaw, setViewRaw] = useState(false);
 
     const systemsList = ["ayurveda", "siddha", "unani", "tm2", "icd11"];
+
+    // Load lookup directly from URL params
+    useEffect(() => {
+        const params = new URLSearchParams(location.search);
+        const urlSystem = params.get("system");
+        const urlCode = params.get("code");
+
+        if (urlSystem && urlCode) {
+            setSystem(urlSystem);
+            setCode(urlCode);
+            dispatch(getLookupData({ system: urlSystem, code: urlCode }));
+        }
+    }, [location.search, dispatch]);
 
     // Dynamic field extraction based on your API samples
     const displayTitle = data ? getField(data, ["title", "NAMC_term", "NUMC_TERM", "NAMC_term_diacritical"]) : "";
@@ -136,6 +152,13 @@ const Lookup = () => {
                                 </div>
                                 {data && (
                                     <div className="flex items-center gap-4">
+                                        <button
+                                            onClick={() => navigate(`/fhir/map?system=${encodeURIComponent(system)}&code=${encodeURIComponent(code)}`)}
+                                            className="text-[10px] uppercase font-black text-teal-400 hover:text-teal-300 transition-colors tracking-tighter border border-teal-500/20 px-3 py-1 rounded-md bg-teal-500/5 hover:bg-teal-500/10"
+                                        >
+                                            Map
+                                        </button>
+
                                         <button 
                                             onClick={() => setViewRaw(!viewRaw)} 
                                             className="text-[10px] uppercase font-black text-emerald-500 hover:text-emerald-300 transition-colors tracking-tighter"
