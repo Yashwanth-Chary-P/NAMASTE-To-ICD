@@ -32,9 +32,9 @@ const ECOSYSTEM = [
 ];
 
 const STATS = [
-    { value: 1200, suffix: "+", label: "Diseases Mapped" },
+    { value: 2800, suffix: "+", label: "Diseases Mapped" },
     { value: 3, suffix: "", label: "Heritage Systems" },
-    { value: 4500, suffix: "+", label: "Remedies Documented" },
+    { value: 6000, suffix: "+", label: "Remedies Documented" },
     { value: 100, suffix: "%", label: "Standardized Data" },
 ];
 
